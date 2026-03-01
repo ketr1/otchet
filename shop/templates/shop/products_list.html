@@ -1,0 +1,81 @@
+{% extends 'shop/base.html' %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center">
+  <h2>Список товаров</h2>
+  <div>
+    <span>{{ full_name }} ({{ role }}) |</span>
+    <a href="{% url 'logout' %}">Выйти</a>
+  </div>
+</div>
+
+<hr />
+
+<form
+  method="get"
+  style="display: flex; gap: 12px; align-items: center; margin: 12px 0"
+>
+  <input
+    type="text"
+    name="q"
+    placeholder="Поиск по названию, описанию или артикулу"
+    value="{{ q }}"
+    oninput="this.form.submit()"
+    style="flex: 1"
+    id="search-input"
+  />
+
+  <select name="supplier" onchange="this.form.submit()">
+    <option value="">Все поставщики</option>
+    {% for s in suppliers %}
+      <option value="{{ s.id }}" {% if s.id|stringformat:"s" == supplier_id %}selected{% endif %}>
+        {{ s.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <select name="sort" onchange="this.form.submit()">
+    <option value="">Без сортировки</option>
+    <option value="stock_asc" {% if sort == 'stock_asc' %}selected{% endif %}>
+      Остаток (по возрастанию)
+    </option>
+    <option value="stock_desc" {% if sort == 'stock_desc' %}selected{% endif %}>
+      Остаток (по убыванию)
+    </option>
+  </select>
+</form>
+
+<table border="1" cellpadding="7" cellspacing="0" style="width: 100%;">
+  <tr>
+    <th>Артикул</th>
+    <th>Наименование</th>
+    <th>Цена</th>
+    <th>Описание</th>
+    <th>Поставщик</th>
+    <th>Скидка</th>
+    <th>Остаток</th>
+  </tr>
+
+  {% for p in products %}
+  <tr>
+    <td>{{ p.article }}</td>
+    <td>{{ p.name }}</td>
+    <td>{{ p.price }}</td>
+    <td>{{ p.description }}</td>
+    <td>{{ p.supplier.name }}</td>
+    <td>{{ p.discount.percent }}</td>
+    <td>{{ p.stock_qty }}</td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="7">Ничего не найдено</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<script>
+  const input = document.getElementById("search-input");
+  input.setSelectionRange(input.value.length, input.value.length);
+  input.focus();
+</script>
+
+{% endblock %}
